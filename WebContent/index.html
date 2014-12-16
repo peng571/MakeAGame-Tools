@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="us">
+<head>
+<meta charset="utf-8">
+<title>Make A Game - Tools</title>
+<link href="css/jquery-ui.css" rel="stylesheet">
+<link href="css/base-ui.css" rel="stylesheet">
+</head>
+<body>
+
+	<h1>工具</h1>
+	<ol>
+		<li><p>
+				<a href="#" id="link-animation-editor"
+					class="button-link ui-state-default ui-corner-all">Animation
+					editor 動畫編輯器</a>
+			</p></li>
+		<li><p>
+				<a href="#" id="link-ui-example"
+					class="button-link ui-state-default ui-corner-all">HTML UI範例</a>
+			</p></li>
+	</ol>
+
+
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery-ui.js"></script>
+	<script>
+		$("#link-animation-editor").click(function(event) {
+			javascript: location.href = 'animation_editor.html';
+		});
+
+		$("#link-ui-example").click(function(event) {
+			javascript: location.href = 'example.html';
+		});
+	</script>
+</body>
+</html>

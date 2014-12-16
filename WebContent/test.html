@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="demod3"></div>
+	<svg width="2000" height="600"></svg>
+
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery-ui.js"></script>
+	<script src="js/d3.min.js"></script>
+	<script src="js/KeyTable.js"></script>
+	<script>
+		function demo_d3(selector, data) {
+
+			var svg = d3.select("svg");
+
+			var circle = svg.selectAll("circle").data([ 32, 57, 293 ], function(d) {
+				return d;
+			});
+
+			circle.enter().append("circle").attr("cy", 60).attr("cx", function(d, i) {
+				return i * 100 + 30;
+			}).attr("r", function(d) {
+				return Math.sqrt(d);
+			});
+
+			circle.exit().remove();
+
+		
+			var values = data.value;
+			for ( var keys in data) {
+				var values = data[keys].value;
+				console.log("values");
+				console.log(values);
+				var rect = svg.selectAll("rect." + "key" + keys).data(values).enter().append("rect").attr("class", "key" + keys).attr("y", function(d, i) {
+					return keys * 30 + 60;
+				}).attr("x", function(d, i) {
+					console.log("x" +i);
+					console.log(d);
+					return d.pos * xratio;
+				}).attr("width", 20).attr("rx", 2).attr("ry", 2).style("fill", "coral").attr("height", 10);
+			}
+
+		}
+
+		var xratio = 0.5;
+		var data = [ {
+			key : "x",
+			value : new Array(new Key(0, 0), new Key(3000, 200, INT_LINEAR))
+		}, {
+			key : "y",
+			value : new Array(new Key(0, 0), new Key(1000, 150, INT_LINEAR), new Key(2000, 50, INT_LINEAR), new Key(3000, 150, INT_LINEAR))
+		} ];
+
+		demo_d3("#demod3", data);
+	</script>
+</body>
+</html>
