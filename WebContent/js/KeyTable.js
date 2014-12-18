@@ -1,12 +1,64 @@
-function  KeyTable(keyMaps){
+function KeyTable(keyMaps){
 	this.loop = false;
-	this.keyMaps = keyMaps || [];
+	this.keyMaps = [];
+	this.attrMap = [];
+	this.posMap = [];
+	setMap (this, keyMaps);	
 }
 	
-function sort(keyMaps){
-	for(var i in keyMaps){
-		keyMaps[i].value.sort(function(a, b){ console.log("sort"); console.log(a);console.log(b);return a.pos - b.pos } );
+function setMap(tables, keyMaps){
+	tables.keyMaps = keyMaps || [];
+	tables.attrMap = sortByPos(getByAttr(tables));
+	//console.log("setMap");
+	//console.log(tables.attrMap);
+}
+
+
+function getByAttr(table, attr){
+	var hashMap = [];
+	var aMap  = [];
+	for(var i in table.keyMaps){
+		var key = table.keyMaps[i];
+		if(typeof hashMap[key.attr] == 'undefined'){
+			hashMap[key.attr] = aMap.length;
+			aMap[aMap.length] = {label:key.attr, value:new Array(key)};
+		}else{
+			aMap[hashMap[key.attr]].value.push(key);
+		}
 	}
+	
+	if(typeof attr == 'undefined'){
+		return aMap;
+	}else{
+		return aMap[attr];
+	}
+}
+
+/*
+function getByPos(pos){
+	var pMap = [];
+	for(var i in keyMaps){
+		var key = keyMaps[i];
+		if(typeof pMap[key.pos] == 'undefined'){
+			pMap[key.pos] = new Array(key);
+		}else{
+			pMap[key.pos].put(key);
+		}
+	}
+	
+	if(typeof pos == 'undefined'){
+		return pMap;
+	}else{
+		return pMap[pos];
+	}
+}
+*/
+
+function sortByPos(keyMaps){
+	for(var i in keyMaps){
+		keyMaps[i].value.sort(function(a, b){return a.pos - b.pos } );
+	}
+	return keyMaps;
 }
 
 function getApplyList(keyTable, current){
@@ -22,21 +74,21 @@ function getApplyList(keyTable, current){
 		current = min + current % (max-min);
 	}
 	
-	var keyMaps = keyTable.keyMaps;
+	var keyMaps = keyTable.attrMap;
 	// 找出在時間中間的一對key pair
 	for(var i in keyMaps){
 		var data = keyMaps[i];
 		if(current <= data.value[0].pos) {
-			before[data.key] = data.value[0] ;
-			after[data.key] = data.value[0];
+			before[data.label] = data.value[0] ;
+			after[data.label] = data.value[0];
 		} else if(current >= data.value[data.value.length-1].pos) {
-			before[data.key] = data.value[data.value.length-1] ;
-			after[data.key] = data.value[data.value.length-1];
+			before[data.label] = data.value[data.value.length-1] ;
+			after[data.label] = data.value[data.value.length-1];
 		} else {
 			for(mapIndex = 0; mapIndex < data.value.length - 1; mapIndex++) {
 				if(data.value[mapIndex].pos <=  current && data.value[mapIndex+1 ].pos >= current) {
-					before[data.key] = data.value[mapIndex];
-					after[data.key] = data.value[mapIndex +1];
+					before[data.label] = data.value[mapIndex];
+					after[data.label] = data.value[mapIndex +1];
 					break;
 				}
 			}
@@ -47,22 +99,23 @@ function getApplyList(keyTable, current){
 	var result = [];
 	for(var i in keyMaps){
 		var data = keyMaps[i];
-		var key1 = before[data.key];
-		var key2 = after[data.key];
+		var key1 = before[data.label];
+		var key2 = after[data.label];
 		// 如果 key1 和 key2的位置相同 表示之前或是之後都沒有其他keypoint
 		// 自然也就無法進行內插
 		if (key1.pos == key2.pos) {
-			result[data.key] = key1.value;
+			result[data.label] = key1.value;
 		} else {
 			// 對 key1, key2 進行內插
 			// 已 key2.interp 所指定的內插方法為準
-			result[data.key] = interpolation(key1, key2, current, key2.interp );
+			result[data.label] = interpolation(key1, key2, current, key2.interp );
 		}
 	}
 	return result;
 }
 
-function Key(p, v, i){
+function Key(a, p, v, i){
+	this.attr = a ||'';
 	this.pos = p || 0;
 	this.value = v;
 	this.interp = i ||  INT_NORMAL;

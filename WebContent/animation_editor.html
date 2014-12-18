@@ -108,7 +108,7 @@ rect .value_point{
         <svg id="time_svg"></svg>
         <div>
             <svg id="key_svg"></svg>
-            <svg id="value_svg"></svg>
+            <svg id="value_svg"> </svg>
         </div>
     </div>
     <div class="clear"></div>
@@ -133,27 +133,18 @@ rect .value_point{
         var time = Date.now();
         var maxTime;
 
-        var keyFrame = new KeyTable([ {
-            key : "x",
-            value : new Array(new Key(0, 0, INT_LINEAR), new Key(3000, 200, INT_LINEAR))
-        }, {
-            key : "y",
-            value : new Array(new Key(0, 0, INT_LINEAR), new Key(1000, 150, INT_LINEAR), new Key(2000, 50, INT_LINEAR), new Key(3000, 150, INT_LINEAR))
-        } ]);
+        var keyFrame = new KeyTable([ 
+           new Key('x', 0, 0, INT_LINEAR), 
+           new Key('x', 3000, 200, INT_LINEAR),
+           new Key('y', 0, 0, INT_LINEAR), 
+           new Key('y', 1000, 150, INT_LINEAR), 
+           new Key('y', 2000, 50, INT_LINEAR), 
+           new Key('y', 3000, 150, INT_LINEAR)
+        ]);
+        var keys = keyFrame.keyMaps;
 
         function draw(time) {
-            background();
-            var applyList = getApplyList(keyFrame, time);
-            //console.log(applyList);
-            var img = document.getElementById("scream");
-            img.src = "images/orange.png"
-            ctx.drawImage(img, applyList["x"], applyList["y"]);
-            if (time > maxTime) {
-                worker.terminate();
-            }
-        }
-
-        function background() {
+            // background
             ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(0, 0, cw, ch);
             ctx.moveTo(0, ch / 2);
@@ -162,7 +153,22 @@ rect .value_point{
             ctx.moveTo(cw / 2, 0);
             ctx.lineTo(cw / 2, ch);
             ctx.stroke();
+            
+            // move time_line
+            d3.select("#time_line")
+            .attr('x1', time*xratio + 30)
+            .attr('x2', time*xratio + 30);
+            
+            var applyList = getApplyList(keyFrame, time);
+            // console.log(applyList);
+            var img = document.getElementById("scream");
+            img.src = "images/orange.png"
+            ctx.drawImage(img, applyList["x"], applyList["y"]);
+            if (time > maxTime) {
+                worker.terminate();
+            }
         }
+
 
         $("#btn_run").click(function(event) {
             time = Date.now();
@@ -171,6 +177,7 @@ rect .value_point{
                 draw(Date.now() - time);
             };
             
+            // 之後再加進去
            // requestAnimationFrame(function( nowtime) {
            // 	  draw(nowtime - time)
             //	});
@@ -180,25 +187,17 @@ rect .value_point{
             worker.terminate();
         });
 
-
-        // D3 的用法和我們一般寫程式的直覺不一樣, 需要花一點時間熟悉
-        // D3 入們教學 http://bost.ocks.org/mike/circles/
-        // D3 教學 https://www.dashingd3js.com/binding-data-to-dom-elements
-
+        
         function demo_d3(selector, data) {
             console.log("demo_d3");
             console.log(data);
-            $(selector).html("");
-            var w1 = d3.selectAll(selector).append("div").attr("class", "container");
+            var w1 = d3.selectAll(selector).html("").append("div").attr("class", "container");
 
             var row = w1.selectAll(".row")
             .data(data)
             .enter()
             .append("div")
             .attr("class", "row");
-            //.on('click', function(d) {
-            //  console.log(d);
-            //})
 
             row.append("span")
             .attr("class", "title")
@@ -219,12 +218,17 @@ rect .value_point{
 
         }
 
-        function timeLine(selector, data) {
+        
+        function setTime(selector, data) {
+        	console.log("data");
+        	console.log(data);
+        	
             // 取最大時間點
             var temp = [];
             for ( var i in data) {
                 temp[i] = data[i].value[data[i].value.length - 1].pos;
             }
+            console.log(temp);
             maxTime = d3.max(temp);
 
             // 時間軸
@@ -255,17 +259,17 @@ rect .value_point{
             .attr("fill", "SaddleBrown")
             .attr("font-size", 16)
             .attr("text-anchor", "middle");
-
         }
 
-        function keyLabel(selector, data) {
+        
+        function setLabel(selector, data) {
 
             var text = d3.select(selector).selectAll("text")
             .data(data)
             .enter()
             .append("text")
             .text(function(d) {
-                return d.key;
+                return d.label;
             })
             .attr("y", function(d, i) {
                 return i * 40 + 40;
@@ -278,10 +282,11 @@ rect .value_point{
             .attr("text-anchor", "right");
         }
 
-        function valueLabel(selector, data) {
-        	$(selector).html('');
-            var svg = d3.select(selector);
-
+        
+        function setValue(selector, data) {
+            var svg = d3.select(selector).html("");
+            
+            // add key bar
             var canvas = svg.selectAll("rect.value_convas")
             .data(data)
             .enter()
@@ -296,10 +301,11 @@ rect .value_point{
             .attr("ry", 2)
             .on("dblclick", function(d, i){
                   var pos= (d3.mouse(this)[0] - 20) / xratio ;
-                  d.value.push(new Key(pos, 0, INT_LINEAR));
+                  setMap(keyFrame, keyFrame.keyMaps.push(new Key(d.label, pos, 0, INT_LINEAR)));
                   refreshValue();
             });
             
+            // add key
             var values = data.value;
             for ( var keys in data) {
                var values = data[keys].value;
@@ -329,44 +335,69 @@ rect .value_point{
                    pointClick(d);
                }).call(drag);
             }
+            
+            // add time line
+            svg.selectAll('line')
+            .data([{pos:0}])
+            .enter()
+            .append('line')
+            .attr("id", "time_line")
+            .attr("x1", 0)
+            .attr("x2",0)
+            .attr("y1", 0)
+            .attr("y2", 100)
+            .attr("stroke","LawnGreen")
+            .attr("stroke-width", 4)
+            .call(drag);
         }
         
 
         var drag = d3.behavior.drag().on('drag', function(d) {
-            console.log(d);
+        	console.log(d);
             var x = (d.pos * xratio) + d3.event.dx;
             d.pos = x / xratio;
-            d3.select(this).attr("x", x);
+            if(this.tagName.toLowerCase() == 'rect'){
+                d3.select(this).attr("x", x);
+            }else if(this.tagName.toLowerCase() == 'line'){
+            	d3.select(this).attr("x1", x);
+            	d3.select(this).attr("x2", x);
+            }
         }).on('dragend', function(d) {
             // 刷新數據
             console.log("dragend");
-            refreshDebug();
+            if(this.tagName.toLowerCase() == 'rect'){
+            	 refreshDebug();
+            }else if(this.tagName.toLowerCase() == 'line'){
+            	draw(d.pos);
+            }
         });
 
-        var editer = $("#edit_value");
         var tempValues;
         var tempData;
-        editer.prop('disabled', true);
-        editer.focus(function() { // on Focus On
-        });
-        editer.blur(function() { // on Focus Off
-            tempData.value = parseInt(editer.val());
-            refreshDebug();
-            editer.prop('disabled', true);
-            tempData = null;
-        });
-        var del_btn =  $("#btn_delect");
-        del_btn.prop('disabled', true);
-        $("#btn_delect").click(function(event) {
-        	keyFrame.keyMaps = $.grep(keyFrame.keyMaps, function(value ) {
-        		value.value = $.grep(value.value, function(key ) {
-        			  return key  != tempData;
-        		});
-        		 return true;
-            });
-            tempData = null;
-            refreshValue();
-        });
+        var editer = $("#edit_value");
+        {
+	        editer.prop('disabled', true);
+	        editer.focus(function() { // on Focus On
+	        });
+	        editer.blur(function() { // on Focus Off
+	            tempData.value = parseInt(editer.val());
+	            refreshDebug();
+	            editer.prop('disabled', true);
+	            tempData = null;
+	        });
+	        var del_btn =  $("#btn_delect");
+	        del_btn.prop('disabled', true);
+	        $("#btn_delect").click(function(event) {
+	        	keyFrame.keyMaps = $.grep(keyFrame.keyMaps, function(value ) {
+	        		value.value = $.grep(value.value, function(key ) {
+	        			  return key  != tempData;
+	        		});
+	        		 return true;
+	            });
+	            tempData = null;
+	            refreshValue();
+	        });
+        }
         
         function pointClick(data){
         	 editer.prop('disabled', false);
@@ -377,20 +408,28 @@ rect .value_point{
         
         
         function refresh(){
-        	 timeLine('#time_svg', keyFrame.keyMaps);
-             keyLabel('#key_svg', keyFrame.keyMaps);
-             valueLabel('#value_svg', keyFrame.keyMaps);
-             demo_d3("#demod3", keyFrame.keyMaps);
+        	 setTime('#time_svg', keyFrame.attrMap);
+             setLabel('#key_svg', keyFrame.attrMap);
+             setValue('#value_svg', keyFrame.attrMap);
+             demo_d3("#demod3", keyFrame.attrMap);
         }
         
         function refreshValue(){
-        	 valueLabel('#value_svg', keyFrame.keyMaps);
-        	 refreshDebug();
+        	setMap(keyFrame, keys);
+        	setValue('#value_svg', keyFrame.attrMap);
+        	refreshDebug();
         }
         
         function refreshDebug(){
-        	  sort(keyFrame.keyMaps);
-        	  demo_d3("#demod3", keyFrame.keyMaps);
+        	demo_d3("#demod3", keyFrame.attrMap);
+        }
+        
+        // turn svg to html
+        function makeSVG(tag, attrs) {
+            var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (var k in attrs)
+                el.setAttribute(k, attrs[k]);
+            return el;
         }
         
         refresh();
