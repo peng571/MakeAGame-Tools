@@ -31,7 +31,7 @@ rect {
 }
 
 svg {
-    background-color: #ffebcd;
+    background-color: #f2f2f2;
     margin: 5px;
 }
 
@@ -59,19 +59,31 @@ rect .value_point{
 }
 
 .cell {
-    background-color: yellow;
+    color: #ffa500;
 }
 
 .clear {
     clear: both;
 }
+
+p{
+    color: white;
+    font-size: 22px;
 }
+
 </style>
 </head>
 <body>
 
     <div>
-        <p>Image to use:</p>
+       <p>Image to use:</p>
+	   <form action="/file-upload"
+	      class="dropzone">
+		    <div class="fallback">
+	           <input name="file" type="file" multiple />
+            </div>
+         </form>
+     
         <img
             id="scream"
             src="images\orange.png"
@@ -91,19 +103,23 @@ rect .value_point{
     <button
         id="btn_run"
         style="float: left"
-        class="button-link ui-state-default ui-corner-all">RUN</button>
+        class="button button-link ui-state-default ui-corner-all">RUN</button>
     <button
         id="btn_stop"
         style="float: left"
-        class="button-link ui-state-default ui-corner-all">STOP</button>
+        class="button button-link ui-state-default ui-corner-all">STOP</button>
+    <button
+        id="btn_export"
+        style="float: left"
+        class="button button-link ui-state-default ui-corner-all">EXPORT</button>
     <button
         style="margin-right: 100px; float: right"  
-        id="btn_delect"
-        class="button-link ui-state-default ui-corner-all">DELECT</button>
-    <input style="float: right"
+        id="btn_export"
+        class="button button-link ui-state-default ui-corner-all">DELECT</button>
+    <input style="float: right; margin: 5px"
             id="edit_value">
-    <h2  
-        style="margin-top: -2px; float: right" >Value</h2>
+     
+    <p    style="margin-top: -2px; float: right" >Value</p>
     <div>
         <svg id="time_svg"></svg>
         <div>
@@ -116,11 +132,16 @@ rect .value_point{
         <p>Debug:</p>
         <div id="demod3"></div>
     </div>
+    <script src="js/dropzone.js"></script>
     <script src="js/jquery.js"></script>
     <script src="js/jquery-ui.min.js"></script>
     <script src="js/d3.min.js"></script>
     <script src="js/KeyTable.js"></script>
     <script>
+    
+	    // 允許使用的attr，照理應該不要設限
+	    var attrs = ['x', 'y', 'image', 'sound'];
+    
         var canvas = document.getElementById("myCanvas");
         var ch = canvas.height;
         var cw = canvas.width;
@@ -139,10 +160,14 @@ rect .value_point{
            new Key('y', 0, 0, INT_LINEAR), 
            new Key('y', 1000, 150, INT_LINEAR), 
            new Key('y', 2000, 50, INT_LINEAR), 
-           new Key('y', 3000, 150, INT_LINEAR)
+           new Key('y', 3000, 150, INT_LINEAR),
+           new Key('image', 0 ,'orange'),
+           new Key('image', 1500, 'red')
         ]);
         var keys = keyFrame.keyMaps;
 
+       // var Dropzone = require("dropzone");
+        
         function draw(time) {
             // background
             ctx.fillStyle = "#FFFFFF";
@@ -185,6 +210,10 @@ rect .value_point{
 
         $("#btn_stop").click(function(event) {
             worker.terminate();
+        });
+        
+        $("#btn_export").click(function(event) {
+           console.log(JSON.stringify(keyFrame.keyMaps));
         });
 
         
@@ -256,7 +285,7 @@ rect .value_point{
             })
             .attr("width", 60)
             .attr("height", 40)
-            .attr("fill", "SaddleBrown")
+            .attr("fill", "#004292")
             .attr("font-size", 16)
             .attr("text-anchor", "middle");
         }
@@ -277,7 +306,7 @@ rect .value_point{
             .attr("x", 130)
             .attr("width", 60)
             .attr("height", 40)
-            .attr("fill", "SaddleBrown")
+            .attr("fill", "#004292")
             .attr("font-size", 22)
             .attr("text-anchor", "right");
         }
@@ -300,6 +329,7 @@ rect .value_point{
             .attr("rx", 2)
             .attr("ry", 2)
             .on("dblclick", function(d, i){
+            	  // double click to add new key point
                   var pos= (d3.mouse(this)[0] - 20) / xratio ;
                   setMap(keyFrame, keyFrame.keyMaps.push(new Key(d.label, pos, 0, INT_LINEAR)));
                   refreshValue();
@@ -322,7 +352,7 @@ rect .value_point{
                })
                .attr("rx", 2)
                .attr("ry", 2)
-               .style("fill", "coral")
+               .style("fill", "#cd0201")
                .attr("height", 25)
                .attr("width", 10);
                
@@ -434,6 +464,7 @@ rect .value_point{
         
         refresh();
         draw(0);
+        
     </script>
 
 </body>
