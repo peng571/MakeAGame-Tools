@@ -153,7 +153,8 @@ p{
         var fw = 1400;//document.getElementById("time_svg").getBBox().width;
         var time = Date.now();
         var maxTime;
-
+        var pointTime = [{pos:0}];
+        
         var keyFrame = new KeyTable([ 
            new Key('x', 0, 0, INT_LINEAR), 
            new Key('x', 3000, 200, INT_LINEAR),
@@ -179,10 +180,13 @@ p{
             ctx.lineTo(cw / 2, ch);
             ctx.stroke();
             
+            pointTime[0].pos = time;
+            
             // move time_line
             d3.select("#time_line")
-            .attr('x1', time*xratio + 30)
-            .attr('x2', time*xratio + 30);
+            .data(pointTime)
+            .attr('x1', function(d){ return d.pos * xratio + 30})
+            .attr('x2', function(d){ return d.pos * xratio + 30});
             
             var applyList = getApplyList(keyFrame, time);
             // console.log(applyList);
@@ -191,12 +195,13 @@ p{
             ctx.drawImage(img, applyList["x"], applyList["y"]);
             if (time > maxTime) {
                 worker.terminate();
+                pointTime[0].pos = 0;
             }
         }
 
 
         $("#btn_run").click(function(event) {
-            time = Date.now();
+            time = Date.now() - pointTime[0].pos;
             worker = new Worker("js/worker.js");
             worker.onmessage = function(event) {
                 draw(Date.now() - time);
@@ -368,7 +373,7 @@ p{
             
             // add time line
             svg.selectAll('line')
-            .data([{pos:0}])
+            .data(pointTime)
             .enter()
             .append('line')
             .attr("id", "time_line")
@@ -391,6 +396,7 @@ p{
             }else if(this.tagName.toLowerCase() == 'line'){
             	d3.select(this).attr("x1", x);
             	d3.select(this).attr("x2", x);
+            	draw(d.pos);
             }
         }).on('dragend', function(d) {
             // 刷新數據
