@@ -1,61 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+  <title>D3.js: How to handle dynamic JSON Data</title>
 </head>
-<body>
-	<div id="demod3"></div>
-	<svg width="2000" height="600"></svg>
+<body id="posts-show">
+<style>
+svg {
+  vertical-align: middle;
+  background: rgba(255,255,255, 0.2);
+  box-shadow: inset 0 0 3px 0px #CECECE;
+}
 
-	<script src="js/jquery.js"></script>
-	<script src="js/jquery-ui.js"></script>
-	<script src="js/d3.min.js"></script>
-	<script src="js/KeyTable.js"></script>
-	<script>
-		function demo_d3(selector, data) {
+svg circle {
+  stroke-width: 2px;
+  stroke: #79A32B;
+  fill: transparent;
+  cursor: pointer;
+}
 
-			var svg = d3.select("svg");
+svg circle:active {
+  stroke: #45D3C7;
+}
+.action-button {
+  border-radius: 2px;
+  border: 1px solid #19380D;
+  padding: 3px 12px;
+  background-color: rgba(175, 209, 183, 0.6);
+  text-decoration: none;
+  display: inline-block;
+}
 
-			var circle = svg.selectAll("circle").data([ 32, 57, 293 ], function(d) {
-				return d;
-			});
+.action-button:active {
+  box-shadow: inset 0 0 3px 0px #868686;
+}
 
-			circle.enter().append("circle").attr("cy", 60).attr("cx", function(d, i) {
-				return i * 100 + 30;
-			}).attr("r", function(d) {
-				return Math.sqrt(d);
-			});
+.action-button.destroy {
+  border: 1px solid #863636;
+  background-color: rgba(197, 86, 86, 0.6);
+}
 
-			circle.exit().remove();
+</style>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.3/d3.min.js" type="text/javascript"></script>
+<script>
+var format = d3.time.format("%a %b %d %Y")
+var amountFn = function(d) { return d.amount }
+var dateFn = function(d) { return format.parse(d.created_at) }
+JSONData = [
+  { "id": 3, "created_at": "Sun May 05 2013", "amount": 12000},
+  { "id": 1, "created_at": "Mon May 13 2013", "amount": 2000},
+  { "id": 2, "created_at": "Thu Jun 06 2013", "amount": 17000},
+  { "id": 4, "created_at": "Thu May 09 2013", "amount": 15000},
+  { "id": 5, "created_at": "Mon Jul 01 2013", "amount": 16000}
+]
+</script>
 
-		
-			var values = data.value;
-			for ( var keys in data) {
-				var values = data[keys].value;
-				console.log("values");
-				console.log(values);
-				var rect = svg.selectAll("rect." + "key" + keys).data(values).enter().append("rect").attr("class", "key" + keys).attr("y", function(d, i) {
-					return keys * 30 + 60;
-				}).attr("x", function(d, i) {
-					console.log("x" +i);
-					console.log(d);
-					return d.pos * xratio;
-				}).attr("width", 20).attr("rx", 2).attr("ry", 2).style("fill", "coral").attr("height", 10);
-			}
 
-		}
+<div id="demoAddRandomAndDelete" style="text-align: center;">
+  <p class="value">Hint: Add many entries</p>
+  <a href="javascript:void(0)" class="add-data action-button">Add data</a>
+  <a href="javascript:void(0)" class="remove-data action-button destroy">Delete data</a>
+</div>
 
-		var xratio = 0.5;
-		var data = [ {
-			key : "x",
-			value : new Array(new Key(0, 0), new Key(3000, 200, INT_LINEAR))
-		}, {
-			key : "y",
-			value : new Array(new Key(0, 0), new Key(1000, 150, INT_LINEAR), new Key(2000, 50, INT_LINEAR), new Key(3000, 150, INT_LINEAR))
-		} ];
+<script>
+(function() {
+   // Just to make sure that JSONData is not altered between examples
+   var data = JSONData.slice()
+   var x = d3.time.scale()
+    .range([10, 280])
 
-		demo_d3("#demod3", data);
-	</script>
+  var y = d3.scale.linear()
+    .range([180, 10])
+  var svg = d3.select("#demoAddRandomAndDelete")
+   .append("svg:svg")
+   .attr("width", 300)
+   .attr("height", 200)
+  var start = d3.min(data, dateFn)
+  var end = d3.max(data, dateFn)
+
+  var refreshGraph = function() {
+
+    x.domain(d3.extent(data, dateFn))
+    y.domain(d3.extent(data, amountFn))
+
+    var circles = svg.selectAll("circle").data(data, dateFn)
+  
+    circles.transition()
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+
+    circles.enter()
+     .append("svg:circle")
+     .attr("r", 4)
+     .attr("cx", function(d) { return x(dateFn(d)) })
+     .attr("cy", function(d) { return y(amountFn(d)) })
+     .on("click", function(d) {
+        d3.select("#demoAddRandomAndDelete .value").text("Date: " + d.created_at + " amount: " + d.amount)
+     })
+   
+    circles.exit()
+     .remove()
+  }
+
+  d3.selectAll("#demoAddRandomAndDelete .add-data")
+    .on("click", function() {
+      var date = new Date(end.getTime() + Math.random() * (end.getTime() - start.getTime()))
+      obj = {
+        'id': Math.floor(Math.random()*70),
+        'amount': Math.floor(1000 + Math.random()*20001),
+        'created_at': date.toDateString()
+      }
+      data.push(obj)
+      refreshGraph()
+    })
+
+  d3.selectAll("#demoAddRandomAndDelete .remove-data")
+    .on("click", function() {
+      var idx = Math.floor(Math.random() * data.length)
+      data.splice( Math.floor(Math.random() * data.length), 1 )
+      refreshGraph()
+    })
+
+  refreshGraph()
+  
+})();
+</script>
 </body>
 </html>

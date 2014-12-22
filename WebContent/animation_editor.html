@@ -44,22 +44,29 @@ svg {
 #key_svg {
     width: 160px;
     float: left;
-    height: 100px;
 }
 
 #value_svg {
     width: 1560px;
     float: left;
-    height: 100px;
 }
 
-rect .value_point{
+svg rect {
     margin: 2px;
     cursor: pointer;
 }
 
+svg rect:active {
+    stroke: #45D3C7;
+}
+
 .cell {
     color: #ffa500;
+}
+
+.title {
+    color: #ffa500;
+    font-size: 18px;
 }
 
 .clear {
@@ -85,11 +92,25 @@ p{
          </form>
      
         <img
-            id="scream"
+            id="img_orange"
             src="images\orange.png"
-            alt="The Scream"
-            width="200"
-            height="200">
+            width="150"
+            height="150">
+        <img
+            id="img_red"
+            src="images\red.png"
+            width="150"
+            height="150">
+        <img
+            id="img_green"
+            src="images\green.png"
+            width="150"
+            height="150">
+        <img
+            id="img_pink"
+            src="images\pink.png"
+            width="150"
+            height="150">
     </div>
 
     <canvas
@@ -139,9 +160,6 @@ p{
     <script src="js/KeyTable.js"></script>
     <script>
     
-	    // 允許使用的attr，照理應該不要設限
-	    var attrs = ['x', 'y', 'image', 'sound'];
-    
         var canvas = document.getElementById("myCanvas");
         var ch = canvas.height;
         var cw = canvas.width;
@@ -166,7 +184,7 @@ p{
            new Key('image', 1500, 'red')
         ]);
         var keys = keyFrame.keyMaps;
-
+        
        // var Dropzone = require("dropzone");
         
         function draw(time) {
@@ -190,8 +208,8 @@ p{
             
             var applyList = getApplyList(keyFrame, time);
             // console.log(applyList);
-            var img = document.getElementById("scream");
-            img.src = "images/orange.png"
+            var img = document.getElementById("img_" + applyList["image"]);
+            //  img.src = "images/orange.png"
             ctx.drawImage(img, applyList["x"], applyList["y"]);
             if (time > maxTime) {
                 worker.terminate();
@@ -233,10 +251,10 @@ p{
             .append("div")
             .attr("class", "row");
 
-            row.append("span")
+            row.append("span.title")
             .attr("class", "title")
             .text(function(d) {
-                return d.key;
+                return d.label;
             })
 
             row.selectAll("span.cell")
@@ -298,7 +316,10 @@ p{
         
         function setLabel(selector, data) {
 
-            var text = d3.select(selector).selectAll("text")
+            var svg = d3.select(selector) 
+            .attr("height", data.length * 50);
+            
+            var text  = svg.selectAll("text")
             .data(data)
             .enter()
             .append("text")
@@ -313,12 +334,13 @@ p{
             .attr("height", 40)
             .attr("fill", "#004292")
             .attr("font-size", 22)
-            .attr("text-anchor", "right");
+            .attr("text-anchor", "end");
         }
 
         
         function setValue(selector, data) {
-            var svg = d3.select(selector).html("");
+            var svg = d3.select(selector).html("")
+            .attr("height", data.length * 50);
             
             // add key bar
             var canvas = svg.selectAll("rect.value_convas")
@@ -359,14 +381,16 @@ p{
                .attr("ry", 2)
                .style("fill", "#cd0201")
                .attr("height", 25)
-               .attr("width", 10);
+               .attr("width", 10)
+               .attr("cursor", "pointer");
                
                rect.on('click', function(d) {
                    if (d3.event.defaultPrevented) {
-                       return;
-                   }// 為了避免覆蓋掉onDrag的事件
+                       return; // 避免覆蓋掉onDrag的事件
+                   }
                    console.log("clicked!");
                    console.log(d);
+                   
                    pointClick(d);
                }).call(drag);
             }
@@ -380,7 +404,7 @@ p{
             .attr("x1", 0)
             .attr("x2",0)
             .attr("y1", 0)
-            .attr("y2", 100)
+            .attr("y2", data.length * 50)
             .attr("stroke","LawnGreen")
             .attr("stroke-width", 4)
             .call(drag);
@@ -407,6 +431,7 @@ p{
             	draw(d.pos);
             }
         });
+        
 
         var tempValues;
         var tempData;
@@ -416,7 +441,7 @@ p{
 	        editer.focus(function() { // on Focus On
 	        });
 	        editer.blur(function() { // on Focus Off
-	            tempData.value = parseInt(editer.val());
+	            tempData.value = editer.val();
 	            refreshDebug();
 	            editer.prop('disabled', true);
 	            tempData = null;
@@ -424,8 +449,8 @@ p{
 	        var del_btn =  $("#btn_delect");
 	        del_btn.prop('disabled', true);
 	        $("#btn_delect").click(function(event) {
-	        	keyFrame.keyMaps = $.grep(keyFrame.keyMaps, function(value ) {
-	        		value.value = $.grep(value.value, function(key ) {
+	        	keyFrame.keyMaps = $.grep(keyFrame.keyMaps, function(value) {
+	        		value.value = $.grep(value.value, function(key) {
 	        			  return key  != tempData;
 	        		});
 	        		 return true;
