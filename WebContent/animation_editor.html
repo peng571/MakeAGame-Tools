@@ -4,499 +4,491 @@
 <meta charset="UTF-8">
 <title>動畫編輯器</title>
 <link
-    href="css/jquery-ui.css"
-    rel="stylesheet">
+  href="css/jquery-ui.css"
+  rel="stylesheet">
 <link
-    href="css/base-ui.css"
-    rel="stylesheet">
+  href="css/base-ui.css"
+  rel="stylesheet">
 <style>
 #myCanvas {
-    height: 200px;
-    width: 400px;
-    background-color: black;
-    position: absolute; /*絕對位置*/
-    top: 18%; /*從上面開始算，下推 50% (一半) 的位置*/
-    left: 50%; /*從左邊開始算，右推 50% (一半) 的位置*/
-    margin-top: -100px; /*高度的一半*/
-    margin-left: -200px; /*寬度的一半*/
+  height: 200px;
+  width: 400px;
+  background-color: black;
+  position: absolute; /*絕對位置*/
+  top: 18%; /*從上面開始算，下推 50% (一半) 的位置*/
+  left: 50%; /*從左邊開始算，右推 50% (一半) 的位置*/
+  margin-top: -100px; /*高度的一半*/
+  margin-left: -200px; /*寬度的一半*/
 }
 
-span {
-    margin: 5px;
-    font-size: 16px;
+span {  
+  margin: 5px;
+  font-size: 16px;
 }
 
 rect {
-    padding: 5px;
+  padding: 5px;
 }
 
 svg {
-    background-color: #f2f2f2;
-    margin: 5px;
+  background-color: #f2f2f2;
+  margin: 5px;
 }
 
 #time_svg {
-    margin-left: 175px;
-    width: 1560px;
-    height: 40px;
+  margin-left: 175px;
+  width: 1560px;
+  height: 40px;
 }
 
 #key_svg {
-    width: 160px;
-    float: left;
+  width: 160px;
+  float: left;
 }
 
 #value_svg {
-    width: 1560px;
-    float: left;
+	width: 1560px;
+  float: left;
 }
 
 svg rect {
-    margin: 2px;
-    cursor: pointer;
+  margin: 2px;
+  cursor: pointer;
 }
 
 svg rect:active {
-    stroke: #45D3C7;
+  stroke: #45D3C7;
 }
 
 .cell {
-    color: #ffa500;
+  color: #ffa500;
 }
 
 .title {
-    color: #ffa500;
-    font-size: 18px;
+  color: #ffa500;
+  font-size: 18px;
 }
 
 .clear {
-    clear: both;
+  clear: both;
 }
 
 p{
-    color: white;
-    font-size: 22px;
+  color: white;
+  font-size: 22px;
 }
 
 </style>
 </head>
 <body>
 
-    <div>
-       <p>Image to use:</p>
-	   <form action="/file-upload"
-	      class="dropzone">
-		    <div class="fallback">
-	           <input name="file" type="file" multiple />
-            </div>
-         </form>
-     
-        <img
-            id="img_orange"
-            src="images\orange.png"
-            width="150"
-            height="150">
-        <img
-            id="img_red"
-            src="images\red.png"
-            width="150"
-            height="150">
-        <img
-            id="img_green"
-            src="images\green.png"
-            width="150"
-            height="150">
-        <img
-            id="img_pink"
-            src="images\pink.png"
-            width="150"
-            height="150">
-    </div>
+  <div>
+   <p>Image to use:</p>
+   <form action="/file-upload"
+    class="dropzone">
+      <div class="fallback">
+       <input name="file" type="file" multiple />
+      </div>
+   </form>
+ 
+  <img
+    id="img_orange"
+    src="images\orange.png"
+    width="150"
+    height="150">
+  <img
+    id="img_red"
+    src="images\red.png"
+    width="150"
+    height="150">
+  <img
+    id="img_green"
+    src="images\green.png"
+    width="150"
+    height="150">
+  <img
+    id="img_pink"
+    src="images\pink.png"
+    width="150"
+    height="150">
+  </div>
 
-    <canvas
-        id="myCanvas"
-        width="400"
-        height="200"
-        style="border: 3px solid #000000;">
-    </canvas>
+  <canvas
+    id="myCanvas"
+    width="400"
+    height="200"
+    style="border: 3px solid #000000;">
+  </canvas>
 
 
-    <button
-        id="btn_run"
-        style="float: left"
-        class="button button-link ui-state-default ui-corner-all">RUN</button>
-    <button
-        id="btn_stop"
-        style="float: left"
-        class="button button-link ui-state-default ui-corner-all">STOP</button>
-    <button
-        id="btn_export"
-        style="float: left"
-        class="button button-link ui-state-default ui-corner-all">EXPORT</button>
-    <button
-        style="margin-right: 100px; float: right"  
-        id="btn_export"
-        class="button button-link ui-state-default ui-corner-all">DELECT</button>
-    <input style="float: right; margin: 5px"
-            id="edit_value">
-     
-    <p    style="margin-top: -2px; float: right" >Value</p>
+  <button
+    id="btn_run"
+    style="float: left"
+    class="button button-link ui-state-default ui-corner-all">RUN</button>
+  <button
+    id="btn_stop"
+    style="float: left"
+    class="button button-link ui-state-default ui-corner-all">STOP</button>
+  <button
+    id="btn_export"
+    style="float: left"
+    class="button button-link ui-state-default ui-corner-all">EXPORT</button>
+  <button
+    style="margin-right: 100px; float: right"  
+    id="btn_delect"
+    class="button button-link ui-state-default ui-corner-all">DELECT</button>
+  <input style="float: right; margin: 5px"
+    id="edit_value">
+   
+  <p    style="margin-top: -2px; float: right" >Value</p>
+  <div>
+    <svg id="time_svg"></svg>
     <div>
-        <svg id="time_svg"></svg>
-        <div>
-            <svg id="key_svg"></svg>
-            <svg id="value_svg"> </svg>
-        </div>
+      <svg id="key_svg"></svg>
+      <svg id="value_svg"> </svg>
     </div>
-    <div class="clear"></div>
-    <div>
-        <p>Debug:</p>
-        <div id="demod3"></div>
-    </div>
-    <script src="js/dropzone.js"></script>
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/d3.min.js"></script>
-    <script src="js/KeyTable.js"></script>
-    <script>
+  </div>
+  <div class="clear"></div>
+  <div>
+    <p>Debug:</p>
+    <div id="demod3"></div>
+  </div>
+  <script src="js/dropzone.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  <script src="js/d3.min.js"></script>
+  <script src="js/KeyTable.js"></script>
+  <script>
     
-        var canvas = document.getElementById("myCanvas");
-        var ch = canvas.height;
-        var cw = canvas.width;
-        var ctx = canvas.getContext("2d");
-        var worker;
+  var intervalID;
 
-        var xratio;
-        
-        var fw = 1400;//document.getElementById("time_svg").getBBox().width;
-        var time = Date.now();
-        var maxTime;
-        var pointTime = [{pos:0}];
-        
-        var keyFrame = new KeyTable([ 
-           new Key('x', 0, 0, INT_LINEAR), 
-           new Key('x', 3000, 200, INT_LINEAR),
-           new Key('y', 0, 0, INT_LINEAR), 
-           new Key('y', 1000, 150, INT_LINEAR), 
-           new Key('y', 2000, 50, INT_LINEAR), 
-           new Key('y', 3000, 150, INT_LINEAR),
-           new Key('image', 0 ,'orange'),
-           new Key('image', 1500, 'red')
-        ]);
-        var keys = keyFrame.keyMaps;
-        
-       // var Dropzone = require("dropzone");
-        
-        function draw(time) {
-            // background
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fillRect(0, 0, cw, ch);
-            ctx.moveTo(0, ch / 2);
-            ctx.lineTo(cw, ch / 2);
-            ctx.stroke();
-            ctx.moveTo(cw / 2, 0);
-            ctx.lineTo(cw / 2, ch);
-            ctx.stroke();
-            
-            pointTime[0].pos = time;
-            
-            // move time_line
-            d3.select("#time_line")
-            .data(pointTime)
-            .attr('x1', function(d){ return d.pos * xratio + 30})
-            .attr('x2', function(d){ return d.pos * xratio + 30});
-            
-            var applyList = getApplyList(keyFrame, time);
-            // console.log(applyList);
-            var img = document.getElementById("img_" + applyList["image"]);
-            //  img.src = "images/orange.png"
-            ctx.drawImage(img, applyList["x"], applyList["y"]);
-            if (time > maxTime) {
-                worker.terminate();
-                pointTime[0].pos = 0;
-            }
+  /* 顯示畫面 */
+  var canvas = document.getElementById("myCanvas");
+  var ch = canvas.height;
+  var cw = canvas.width;
+  var ctx = canvas.getContext("2d");
+
+  var xratio;
+  
+  var fw = 1400;//document.getElementById("time_svg").getBBox().width;
+  var time = Date.now();
+  var maxTime;
+  var pointTime = [{pos:0}];
+  
+  var posFn = d3.scale.linear().range([10, fw]);
+  
+  /* 預設KeyFrame */
+  var keyFrame = new KeyTable([ 
+    new Key('x', 0, 0, INT_LINEAR), 
+    new Key('x', 3000, 200, INT_LINEAR),
+    new Key('y', 0, 0, INT_LINEAR), 
+    new Key('y', 1000, 150, INT_LINEAR), 
+    new Key('y', 2000, 50, INT_LINEAR), 
+    new Key('y', 3000, 150, INT_LINEAR),
+    new Key('image', 0 ,'orange'),
+    new Key('image', 1500, 'red')
+  ]);
+  var keys = keyFrame.keyMaps;
+  
+ // var Dropzone = require("dropzone");
+  
+  function draw(time) {
+    // background
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.moveTo(0, ch / 2);
+    ctx.lineTo(cw, ch / 2);
+    ctx.stroke();
+    ctx.moveTo(cw / 2, 0);
+    ctx.lineTo(cw / 2, ch);
+    ctx.stroke();
+    
+    pointTime[0].pos = time;
+    
+    // move time_line
+    d3.select("#time_line")
+      .data(pointTime)
+    .attr('x1', function(d){ return d.pos * xratio + 30})
+    .attr('x2', function(d){ return d.pos * xratio + 30});
+    
+    var applyList = getApplyList(keyFrame, time);
+    // console.log(applyList);
+    var img = document.getElementById("img_" + applyList["image"]);
+    //  img.src = "images/orange.png"
+    ctx.drawImage(img, applyList["x"], applyList["y"]);
+    if (time > maxTime) {
+      window.clearInterval(intervalID);
+      pointTime[0].pos = 0;
+    }
+  }
+  
+  $("#btn_run").click(function(event) {
+    time = Date.now() - pointTime[0].pos;
+    intervalID = window.setInterval(run, 10);
+  });
+  
+
+  function run(){
+    //requestAnimationFrame(run);
+    draw(Date.now() - time);
+  }   
+  
+  
+  $("#btn_stop").click(function(event) {
+    window.clearInterval(intervalID);
+  });
+  
+  $("#btn_export").click(function(event) {
+    console.log(JSON.stringify(keyFrame.keyMaps));
+  });
+
+  
+  function demo_d3(selector, data) {
+    console.log("demo_d3");
+    console.log(data);
+    var w1 = d3.select(selector).html("")
+
+    var row = d3.select(selector).selectAll(".row")
+    .data(data);
+    row.enter().append("div")
+    .attr("class", "row");
+    
+    var cell = row.selectAll("span.cell")
+    .data(function(d) { return d.value; });
+    cell.enter().append("span")
+    .attr("class", "cell")
+    .text(function(d, i) { 
+      return  (i===0 ? d.attr : "") + "  (p:" + d.pos.toFixed(0) + ", v:" + d.value + ")";
+    });
+    //cell.exit().remove();
+
+    //row.exit().remove();
+  }
+
+  // 設置時間區
+  function setTime(selector, data) {
+    console.log("data");
+    console.log(data);
+    
+    // 取最大時間點
+    var temp = [];
+    for ( var i in data) {
+        temp[i] = data[i].value[data[i].value.length - 1].pos;
+    }
+    maxTime = d3.max(temp);
+    posFn.domain([0, maxTime]);
+    
+    // 時間軸
+    var timeLine = [];
+    temp = maxTime / 10;
+    timeLine[0] = 0;
+    for (i = 1; i < 11; i++) {
+      timeLine[i] = timeLine[i - 1] + temp;
+    }
+    console.log(timeLine);
+
+    xratio = fw / maxTime;
+    console.log("xratio " + xratio);
+
+    var text = d3.select(selector).selectAll("text").data(timeLine);
+    
+    text.transition()
+     .attr("x", function(d) { return posFn(d);})
+     .attr("y", 30);
+     
+    text.enter().append("text")
+    .text(function(d) { return d; })
+    .attr("y", 30)
+    .attr("x", function(d) { return posFn(d);})
+    .attr("width", 60)
+    .attr("height", 40)
+    .attr("fill", "#004292")
+    .attr("font-size", 16)
+    .attr("text-anchor", "middle");
+    
+    text.exit().remove();
+  }
+
+  // 設置LABEL區
+  function setLabel(selector, data) {
+
+    var svg = d3.select(selector) 
+    .attr("height", data.length * 50);
+
+    var text  = svg.selectAll("text")
+    .data(data);
+    text.enter().append("text")
+    .text(function(d) { return d.label; })
+    .attr("y", function(d, i) { return i * 40 + 40;})
+    .attr("x", 130)
+    .attr("width", 60)
+    .attr("height", 40)
+    .attr("fill", "#004292")
+    .attr("font-size", 22)
+    .attr("text-anchor", "end");
+    text.exit().remove();
+  }
+
+  // 設置VALUE區
+  function setValue(selector, data) {
+    var svg = d3.select(selector)//.html("")
+    .attr("height", data.length * 50);
+    
+    // add key bar
+    var canvas = svg.selectAll("rect.value_convas")
+    .data(data);
+    canvas.enter().append("rect")
+    .attr("class", "value_convas")
+    .attr("x", 20)
+    .attr("y", function(d,i){return 15+ 40*i;})
+    .attr("width", 1520)
+    .attr("height", 35)
+    .attr("fill", "white")
+    .attr("rx", 2)
+    .attr("ry", 2)
+    .on("dblclick", function(d, i){
+      // double click to add new key point
+      var pos= (d3.mouse(this)[0] - 20) / xratio ;
+      setMap(keyFrame, keyFrame.keyMaps.push(new Key(d.label, pos, 0, INT_LINEAR)));
+      refreshValue();
+    });
+    canvas.exit().remove();
+    
+    // add key
+    var values = data.value;
+    for ( var keys in data) {
+      var values = data[keys].value;
+      var rect = svg.selectAll("rect.value_point." + "key" + keys).data(values);
+      
+      rect.transition()
+      .attr("x", function(d, i) { return d.pos * xratio + 30; })
+      .attr("y", keys * 40 + 20)
+     
+      rect.enter().append("rect")
+      .attr("class", "value_point key" + keys)
+      .attr("x", function(d, i) { return d.pos * xratio + 30; })
+      .attr("y", keys * 40 + 20)
+      .attr("rx", 2)
+      .attr("ry", 2)
+      .style("fill", "#cd0201")
+      .attr("height", 25)
+      .attr("width", 10)
+      .attr("cursor", "pointer");
+      rect.on('click', function(d) {
+        // 用來避免onClick事件覆蓋掉其他觸控事件
+        if (d3.event.defaultPrevented) {
+          return; 
         }
+        console.log("clicked!");
+        console.log(d);
 
-
-        $("#btn_run").click(function(event) {
-            time = Date.now() - pointTime[0].pos;
-            worker = new Worker("js/worker.js");
-            worker.onmessage = function(event) {
-                draw(Date.now() - time);
-            };
-            
-            // 之後再加進去
-           // requestAnimationFrame(function( nowtime) {
-           // 	  draw(nowtime - time)
-            //	});
-        });
-
-        $("#btn_stop").click(function(event) {
-            worker.terminate();
-        });
+        pointClick(d);
+      }).call(drag);
+      
+      rect.exit().remove();
+    } 
+    
+    // add time line
+    svg.selectAll('line')
+    .data(pointTime)
+    .enter().append('line')
+    .attr("id", "time_line")
+    .attr("x1", 0)
+    .attr("x2",0)
+    .attr("y1", 0)
+    .attr("y2", data.length * 50)
+    .attr("stroke","LawnGreen")
+    .attr("stroke-width", 4)
+    .call(drag);
+  }
+  
+  // d3 function on drag
+  var drag = d3.behavior.drag().on('drag', function(d) {
+    console.log(d);
+    var x = (d.pos * xratio) + d3.event.dx;
+    d.pos = x / xratio;
+    if(this.tagName.toLowerCase() == 'rect'){
+      d3.select(this).attr("x", x);
+    }else if(this.tagName.toLowerCase() == 'line'){
+      d3.select(this).attr("x1", x);
+      d3.select(this).attr("x2", x);
+      draw(d.pos);
+    }
+  // refresh value when drag is end
+  }).on('dragend', function(d) {
+    console.log("dragend");
+    if(this.tagName.toLowerCase() == 'rect'){
+      refreshDebug();
+    }else if(this.tagName.toLowerCase() == 'line'){
+      draw(d.pos);
+    }
+  });
+  
+  
+  // 修改point
+  var tempValues;
+  var tempData;
+  var editer = $("#edit_value");
+  {
+    editer.prop('disabled', true);
+    // on Focus On
+    editer.focus(function() { 
+    });
+    // on Focus Off
+    editer.blur(function() { 
+      tempData.value = editer.val();
+      refreshDebug();
+      editer.prop('disabled', true);
+      tempData = null;
+    });
+  }
+    
+  // 刪除point
+  var del_btn =  $("#btn_delect");
+  {
+    del_btn.prop('disabled', true);
+    del_btn.click(function(event) {
+      // 這邊用塞選的方式來移除陣列和所選擇相同的相同的元素
+      keys =  $.grep(keyFrame.keyMaps, function(v) { return v != tempData; });
+      
+      tempData = null;
+      refreshValue();
+    });
+  }
+  
+  
+  function pointClick(data){
+    console.log("point click");
+    editer.prop('disabled', false);
+    del_btn.prop('disabled', false);
+    editer.val(data.value);
+    tempData = data;
+  }
+  
+  
+  /*
+   * 刷新頁面
+   */
+  function refresh(){
+    setTime('#time_svg', keyFrame.attrMap);
+    setLabel('#key_svg', keyFrame.attrMap);
+    setValue('#value_svg', keyFrame.attrMap);
+    demo_d3("#demod3", keyFrame.attrMap);
+  }
+  
+  function refreshValue(){
+    setMap(keyFrame, keys);
+    setValue('#value_svg', keyFrame.attrMap);
+    refreshDebug();
+  }
+  
+  function refreshDebug(){
+    demo_d3("#demod3", keyFrame.attrMap);
+  }
+  
+  refresh();
+  draw(0);
         
-        $("#btn_export").click(function(event) {
-           console.log(JSON.stringify(keyFrame.keyMaps));
-        });
-
-        
-        function demo_d3(selector, data) {
-            console.log("demo_d3");
-            console.log(data);
-            var w1 = d3.selectAll(selector).html("").append("div").attr("class", "container");
-
-            var row = w1.selectAll(".row")
-            .data(data)
-            .enter()
-            .append("div")
-            .attr("class", "row");
-
-            row.append("span.title")
-            .attr("class", "title")
-            .text(function(d) {
-                return d.label;
-            })
-
-            row.selectAll("span.cell")
-            .data(function(d) {
-                return d.value;
-            })
-            .enter()
-            .append("span")
-            .attr("class", "cell")
-            .text(function(d) {
-                return "(p:" + d.pos.toFixed(0) + ", v:" + d.value + ")";
-            })
-
-        }
-
-        
-        function setTime(selector, data) {
-        	console.log("data");
-        	console.log(data);
-        	
-            // 取最大時間點
-            var temp = [];
-            for ( var i in data) {
-                temp[i] = data[i].value[data[i].value.length - 1].pos;
-            }
-            console.log(temp);
-            maxTime = d3.max(temp);
-
-            // 時間軸
-            var timeLine = [];
-            temp = maxTime / 10;
-            timeLine[0] = 0;
-            for (i = 1; i < 11; i++) {
-                timeLine[i] = timeLine[i - 1] + temp;
-            }
-            console.log(timeLine);
-
-            xratio = fw / maxTime;
-            console.log("xratio " + xratio);
-
-            var text = d3.select(selector).selectAll("text")
-            .data(timeLine)
-            .enter()
-            .append("text")
-            .text(function(d) {
-                return d;
-            })
-            .attr("y", 30)
-            .attr("x", function(d, i) {
-                return d * xratio + 30;
-            })
-            .attr("width", 60)
-            .attr("height", 40)
-            .attr("fill", "#004292")
-            .attr("font-size", 16)
-            .attr("text-anchor", "middle");
-        }
-
-        
-        function setLabel(selector, data) {
-
-            var svg = d3.select(selector) 
-            .attr("height", data.length * 50);
-            
-            var text  = svg.selectAll("text")
-            .data(data)
-            .enter()
-            .append("text")
-            .text(function(d) {
-                return d.label;
-            })
-            .attr("y", function(d, i) {
-                return i * 40 + 40;
-            })
-            .attr("x", 130)
-            .attr("width", 60)
-            .attr("height", 40)
-            .attr("fill", "#004292")
-            .attr("font-size", 22)
-            .attr("text-anchor", "end");
-        }
-
-        
-        function setValue(selector, data) {
-            var svg = d3.select(selector).html("")
-            .attr("height", data.length * 50);
-            
-            // add key bar
-            var canvas = svg.selectAll("rect.value_convas")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "value_convas")
-            .attr("x", 20)
-            .attr("y", function(d,i){return 15+ 40*i;})
-            .attr("width", 1520)
-            .attr("height", 35)
-            .attr("fill", "white")
-            .attr("rx", 2)
-            .attr("ry", 2)
-            .on("dblclick", function(d, i){
-            	  // double click to add new key point
-                  var pos= (d3.mouse(this)[0] - 20) / xratio ;
-                  setMap(keyFrame, keyFrame.keyMaps.push(new Key(d.label, pos, 0, INT_LINEAR)));
-                  refreshValue();
-            });
-            
-            // add key
-            var values = data.value;
-            for ( var keys in data) {
-               var values = data[keys].value;
-               var rect = svg.selectAll("rect.value_point." + "key" + keys)
-               .data(values)
-               .enter()
-               .append("rect")
-               .attr("class", "value_point key" + keys)
-               .attr("y", keys * 40 + 20)
-               .attr("x", function(d, i) {
-                   //console.log("x" + i);
-                   //console.log(d);
-                   return d.pos * xratio + 30;
-               })
-               .attr("rx", 2)
-               .attr("ry", 2)
-               .style("fill", "#cd0201")
-               .attr("height", 25)
-               .attr("width", 10)
-               .attr("cursor", "pointer");
-               
-               rect.on('click', function(d) {
-                   if (d3.event.defaultPrevented) {
-                       return; // 避免覆蓋掉onDrag的事件
-                   }
-                   console.log("clicked!");
-                   console.log(d);
-                   
-                   pointClick(d);
-               }).call(drag);
-            }
-            
-            // add time line
-            svg.selectAll('line')
-            .data(pointTime)
-            .enter()
-            .append('line')
-            .attr("id", "time_line")
-            .attr("x1", 0)
-            .attr("x2",0)
-            .attr("y1", 0)
-            .attr("y2", data.length * 50)
-            .attr("stroke","LawnGreen")
-            .attr("stroke-width", 4)
-            .call(drag);
-        }
-        
-
-        var drag = d3.behavior.drag().on('drag', function(d) {
-        	console.log(d);
-            var x = (d.pos * xratio) + d3.event.dx;
-            d.pos = x / xratio;
-            if(this.tagName.toLowerCase() == 'rect'){
-                d3.select(this).attr("x", x);
-            }else if(this.tagName.toLowerCase() == 'line'){
-            	d3.select(this).attr("x1", x);
-            	d3.select(this).attr("x2", x);
-            	draw(d.pos);
-            }
-        }).on('dragend', function(d) {
-            // 刷新數據
-            console.log("dragend");
-            if(this.tagName.toLowerCase() == 'rect'){
-            	 refreshDebug();
-            }else if(this.tagName.toLowerCase() == 'line'){
-            	draw(d.pos);
-            }
-        });
-        
-
-        var tempValues;
-        var tempData;
-        var editer = $("#edit_value");
-        {
-	        editer.prop('disabled', true);
-	        editer.focus(function() { // on Focus On
-	        });
-	        editer.blur(function() { // on Focus Off
-	            tempData.value = editer.val();
-	            refreshDebug();
-	            editer.prop('disabled', true);
-	            tempData = null;
-	        });
-	        var del_btn =  $("#btn_delect");
-	        del_btn.prop('disabled', true);
-	        $("#btn_delect").click(function(event) {
-	        	keyFrame.keyMaps = $.grep(keyFrame.keyMaps, function(value) {
-	        		value.value = $.grep(value.value, function(key) {
-	        			  return key  != tempData;
-	        		});
-	        		 return true;
-	            });
-	            tempData = null;
-	            refreshValue();
-	        });
-        }
-        
-        function pointClick(data){
-        	 editer.prop('disabled', false);
-        	 del_btn.prop('disabled', false);
-             editer.val(data.value);
-             tempData = data;
-        }
-        
-        
-        function refresh(){
-        	 setTime('#time_svg', keyFrame.attrMap);
-             setLabel('#key_svg', keyFrame.attrMap);
-             setValue('#value_svg', keyFrame.attrMap);
-             demo_d3("#demod3", keyFrame.attrMap);
-        }
-        
-        function refreshValue(){
-        	setMap(keyFrame, keys);
-        	setValue('#value_svg', keyFrame.attrMap);
-        	refreshDebug();
-        }
-        
-        function refreshDebug(){
-        	demo_d3("#demod3", keyFrame.attrMap);
-        }
-        
-        // turn svg to html
-        function makeSVG(tag, attrs) {
-            var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
-            for (var k in attrs)
-                el.setAttribute(k, attrs[k]);
-            return el;
-        }
-        
-        refresh();
-        draw(0);
-        
-    </script>
-
+  </script>
 </body>
 </html>
